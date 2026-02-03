@@ -2,11 +2,20 @@
 
 Two-page web app:
 - **Blog**: users submit book reviews (author, title, content, score 0-10, optional cover image). Inputs are validated + sanitized server-side and stored in SQL.
-- **Recommendations**: a short quiz (free-text preferences) returns:
+- **Recommendations**: a multi-step quiz (multiple choice + one text question) returns:
   - **Global Recommendation** (from Kaggle books dataset)
   - **Our Recommendation** (from your site's review DB)
 
 Theme: **maroon** + **off-white (#F5F1E8)**.
+
+---
+
+## Tech stack
+- Frontend: React 17 (CDN), ReactDOM (CDN), Babel Standalone (in-browser JSX)
+- Backend: Python `http.server` (ThreadingHTTPServer)
+- Database: SQLite
+- NLP: TF-IDF via `scikit-learn` + `pandas`
+- Dataset: Kaggle Books (`Books.zip` -> `books.csv`)
 
 ---
 
@@ -25,9 +34,11 @@ Theme: **maroon** + **off-white (#F5F1E8)**.
 3. Use these settings:
    - **Build Command**: `pip install -r backend/requirements.txt`
    - **Start Command**: `python backend/server.py`
-4. (Recommended) Put `Books.zip` into `backend/` before you deploy.
+4. Put `Books.zip` into `backend/` before you deploy.
    - The server will auto-extract `books.csv` and build the TF-IDF index.
    - If `Books.zip` is missing, **Global Recommendation** may be unavailable.
+5. (Optional) Set a delete passcode:
+   - In Render -> **Environment**, add `DELETE_PASSCODE` with your chosen value.
 
 After deploy, Render gives you a URL like:
 `https://your-service.onrender.com`
@@ -71,3 +82,21 @@ window.BOOK_API_BASE = "http://localhost:8000";
 ## Notes
 - SQLite is stored in `backend/database.db`. On free cloud tiers, local disk may reset on redeploy.
 - CORS is enabled so GitHub Pages can call the Render API.
+- Render free tier services can sleep. First request after idle may take 30-60 seconds.
+
+## Admin delete (passcode)
+Reviews can be deleted with a passcode.
+- Set `DELETE_PASSCODE` in your Render environment.
+- Frontend prompts for it when you click **Delete**.
+
+## Diagnostics
+Check dataset loading and feature readiness:
+```
+GET /api/status
+```
+Returns:
+- `books_csv_exists`
+- `books_loaded`
+- `books_count`
+- `tfidf_ready`
+- `delete_passcode_configured`
