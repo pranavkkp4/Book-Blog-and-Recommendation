@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: book-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: python backend/server.py
+    autoDeploy: true

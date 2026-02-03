@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Hub - Recommendation</title>
+  <!-- Include React and ReactDOM from a CDN -->
+  <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <!-- Include Babel to allow JSX in the browser -->
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #F5F1E8; /* off-white */
+      color: #333;
+    }
+    header {
+      background-color: #800000; /* maroon */
+      color: #fff;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      margin-left: 16px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 4px;
+    }
+    nav button.active {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    form {
+      background-color: #fff;
+      padding: 16px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
+    }
+    form input[type="text"],
+    form input[type="number"],
+    form textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    form input[type="file"] {
+      margin-bottom: 12px;
+    }
+    form button {
+      background-color: #800000;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .review-card {
+      background-color: #fff;
+      padding: 16px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+    }
+    .review-card h3 {
+      margin: 0 0 8px 0;
+    }
+    .review-card img {
+      max-width: 120px;
+      margin-right: 16px;
+    }
+    .recommendation-result {
+      background-color: #fff;
+      padding: 16px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    window.APP_PAGE = "recommend";
+  </script>
+  <!-- Configure backend API base URL here (GitHub Pages -> Render) -->
+  <script src="config.js"></script>
+  <script type="text/babel" src="app.js"></script>
+</body>
+</html>
