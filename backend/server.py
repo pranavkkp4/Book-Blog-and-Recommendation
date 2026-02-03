@@ -28,6 +28,7 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads')
 DATA_DIR = os.path.join(BASE_DIR, 'data', 'books_data')
 DB_PATH = os.path.join(BASE_DIR, 'database.db')
+DELETE_PASSCODE = os.environ.get('DELETE_PASSCODE', '').strip()
 
 # Ensure uploads directory exists
 os.makedirs(UPLOADS_DIR, exist_ok=True)
@@ -94,6 +95,42 @@ def fetch_reviews():
             'created_at': row['created_at'],
         })
     return result
+
+
+def get_status():
+    """Return backend status details for diagnostics."""
+    books_csv_path = os.path.join(DATA_DIR, 'books.csv')
+    books_loaded = RECOMMENDER.books_df is not None
+    books_count = int(len(RECOMMENDER.books_df)) if books_loaded else 0
+    return {
+        'books_csv_exists': os.path.exists(books_csv_path),
+        'books_loaded': books_loaded,
+        'books_count': books_count,
+        'tfidf_ready': RECOMMENDER.tfidf_matrix is not None,
+        'delete_passcode_configured': bool(DELETE_PASSCODE),
+    }
+
+
+def delete_review(review_id: int) -> bool:
+    """Delete a review and its cover image (if any). Returns True if deleted."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT cover_path FROM reviews WHERE id = ?", (review_id,))
+    row = c.fetchone()
+    if not row:
+        conn.close()
+        return False
+    cover_path = row['cover_path']
+    c.execute("DELETE FROM reviews WHERE id = ?", (review_id,))
+    conn.commit()
+    conn.close()
+    if cover_path and os.path.exists(cover_path):
+        try:
+            os.remove(cover_path)
+        except Exception:
+            pass
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -207,6 +244,8 @@ class RecommendationEngine:
         is most similar to the query using TF-IDF. If there aren't enough reviews,
         return None.
         """
+        if TfidfVectorizer is None or linear_kernel is None:
+            return None
         # Require at least 3 reviews to make a meaningful recommendation
         if reviews is None or len(reviews) < 3:
             return None
@@ -243,8 +282,8 @@ class BookServerHandler(http.server.BaseHTTPRequestHandler):
     def end_headers(self):
         # Always set CORS headers
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-Delete-Passcode')
         super().end_headers()
 
     def do_OPTIONS(self):
@@ -275,6 +314,13 @@ class BookServerHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
+
+        if path == '/api/status':
+            try:
+                self.send_json(get_status())
+            except Exception as e:
+                self.send_json({'error': 'Failed to fetch status', 'detail': str(e)}, status=500)
+            return
 
         if path == '/api/reviews':
             # Return all reviews as JSON
@@ -450,6 +496,40 @@ class BookServerHandler(http.server.BaseHTTPRequestHandler):
             return
 
         # Unknown POST endpoint
+        self.send_response(404)
+        self.end_headers()
+
+    def do_DELETE(self):
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+
+        if path.startswith('/api/reviews/'):
+            review_id_str = path[len('/api/reviews/'):]
+            try:
+                review_id = int(review_id_str)
+            except Exception:
+                self.send_json({'error': 'Invalid review id'}, status=400)
+                return
+
+            if not DELETE_PASSCODE:
+                self.send_json({'error': 'Delete passcode not configured'}, status=503)
+                return
+
+            passcode = self.headers.get('X-Delete-Passcode', '').strip()
+            if passcode != DELETE_PASSCODE:
+                self.send_json({'error': 'Unauthorized'}, status=401)
+                return
+
+            try:
+                deleted = delete_review(review_id)
+                if deleted:
+                    self.send_json({'status': 'deleted'})
+                else:
+                    self.send_json({'error': 'Review not found'}, status=404)
+            except Exception as e:
+                self.send_json({'error': 'Failed to delete review', 'detail': str(e)}, status=500)
+            return
+
         self.send_response(404)
         self.end_headers()
 

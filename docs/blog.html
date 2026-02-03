@@ -10,91 +10,301 @@
   <!-- Include Babel to allow JSX in the browser -->
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap");
+
+    :root {
+      --maroon: #800000;
+      --maroon-dark: #5a0000;
+      --maroon-soft: #a63a3a;
+      --paper: #f5f1e8;
+      --ink: #2b1f1d;
+      --card: #fffdf8;
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      --shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.08);
+      --accent: #c86b3c;
+      --border: rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #F5F1E8; /* off-white */
-      color: #333;
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #f0dfcc, transparent 60%),
+        radial-gradient(800px 500px at 100% 0%, #f6e8d8, transparent 55%),
+        linear-gradient(180deg, var(--paper), #efe6da 55%, #f7f2ea 100%);
+      color: var(--ink);
+      min-height: 100vh;
     }
+
     header {
-      background-color: #800000; /* maroon */
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      background: linear-gradient(135deg, var(--maroon), var(--maroon-dark));
       color: #fff;
-      padding: 16px;
+      padding: 18px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: var(--shadow-soft);
     }
+
     header h1 {
       margin: 0;
-      font-size: 24px;
+      font-family: "Fraunces", serif;
+      font-size: 28px;
+      letter-spacing: 0.3px;
     }
+
+    nav {
+      display: flex;
+      gap: 8px;
+    }
+
     nav button {
-      background: none;
-      border: none;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       color: #fff;
-      font-size: 16px;
-      margin-left: 16px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-      padding: 8px 12px;
-      border-radius: 4px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      transition: transform 0.2s ease, background 0.2s ease, border 0.2s ease;
     }
+
+    nav button:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
     nav button.active {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-    form {
       background-color: #fff;
-      padding: 16px;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      margin-bottom: 24px;
+      color: var(--maroon);
+      border-color: #fff;
     }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    h2 {
+      font-family: "Fraunces", serif;
+      font-size: 28px;
+      margin: 20px 0 14px;
+      color: var(--maroon-dark);
+    }
+
+    form {
+      background: var(--card);
+      padding: 22px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 28px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    form textarea,
     form input[type="text"],
-    form input[type="number"],
-    form textarea {
+    form input[type="number"] {
       width: 100%;
-      padding: 8px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 10px 12px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
       font-size: 14px;
+      background: #fff;
+      font-family: "Space Grotesk", sans-serif;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
     }
+
+    form textarea {
+      grid-column: 1 / -1;
+      min-height: 140px;
+      resize: vertical;
+    }
+
     form input[type="file"] {
-      margin-bottom: 12px;
+      grid-column: 1 / -1;
     }
+    .file-input {
+      grid-column: 1 / -1;
+    }
+
+    .helper-text {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #6b5b57;
+    }
+
+    form input:focus,
+    form textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200, 107, 60, 0.2);
+    }
+
     form button {
-      background-color: #800000;
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, var(--maroon), var(--maroon-soft));
       color: #fff;
       border: none;
-      padding: 10px 16px;
-      border-radius: 4px;
-      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 20px rgba(128, 0, 0, 0.2);
     }
+
+    form button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(128, 0, 0, 0.25);
+    }
+
     .review-card {
-      background-color: #fff;
-      padding: 16px;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      margin-bottom: 16px;
+      background: var(--card);
+      padding: 18px 20px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
     }
+
+    .review-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 6px;
+      background: linear-gradient(180deg, var(--maroon), var(--accent));
+      opacity: 0.9;
+    }
+
     .review-card h3 {
-      margin: 0 0 8px 0;
+      margin: 0 0 6px 0;
+      font-family: "Fraunces", serif;
+      font-size: 20px;
     }
+    .delete-btn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: #fff;
+      color: var(--maroon);
+      border: 1px solid rgba(128, 0, 0, 0.25);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .delete-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(128, 0, 0, 0.2);
+    }
+
     .review-card img {
-      max-width: 120px;
-      margin-right: 16px;
+      width: 120px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin: 4px 16px 8px 0;
+      float: left;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
     }
+
+    .review-card::after {
+      content: "";
+      display: block;
+      clear: both;
+    }
+
+    .review-card p {
+      margin: 6px 0;
+      line-height: 1.5;
+    }
+
+    .alert {
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-size: 14px;
+      border: 1px solid transparent;
+      box-shadow: var(--shadow-soft);
+      grid-column: 1 / -1;
+    }
+
+    .alert-success {
+      background: #f1fbf3;
+      border-color: #bfe6c6;
+      color: #1f6b2a;
+    }
+
+    .alert-warning {
+      background: #fff6e6;
+      border-color: #f2d2a5;
+      color: #7a4a00;
+    }
+
     .recommendation-result {
-      background-color: #fff;
+      background: var(--card);
       padding: 16px;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      box-shadow: var(--shadow-soft);
       margin-top: 16px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 720px) {
+      header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+
+      .container {
+        padding: 22px 16px 40px;
+      }
+
+      form {
+        grid-template-columns: 1fr;
+      }
+
+      .review-card img {
+        float: none;
+        width: 100%;
+        height: auto;
+        margin: 8px 0 12px;
+      }
     }
   </style>
 </head>
@@ -105,6 +315,11 @@
   </script>
   <!-- Configure backend API base URL here (GitHub Pages -> Render) -->
   <script src="config.js"></script>
-  <script type="text/babel" src="app.js"></script>
+  <script
+    type="text/babel"
+    data-presets="react"
+    data-plugins="transform-react-jsx"
+    src="app.js"
+  ></script>
 </body>
 </html>
